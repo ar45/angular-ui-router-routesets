@@ -1,6 +1,6 @@
 {
   "name": "angular-ui-router-routesets",
-  "version": "1.0.0",
+  "version": "1.0.1-0",
   "description": "A useful common routeset generator for angular ui-router",
   "main": "dist/index.js",
   "scripts": {
