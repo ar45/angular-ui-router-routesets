@@ -7,7 +7,9 @@ const restangular = 'restangular';
 
 
 import uiRouterRouteSets from './routesets-provider.js';
+import RouteSet from './routesets.js';
 
+export { RouteSet };
 
 export default angular.module('angular-ui-router-routesets', [
         uiRouter, restangular,

@@ -9,7 +9,9 @@ Custom controllers inherit from our generic controllers.
 Example route.
 
 ```js
-genericRouteSet({
+import RouteSet from 'angular-ui-router-routesets/routesets'
+
+RouteSet({
     parent,   // string
     name,     // string
     url,      // string

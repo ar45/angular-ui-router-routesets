@@ -24,6 +24,11 @@ function tryLoadTemplate(requireContext, template) {
 }
 
 
+function capFirst (s) {
+    return s && s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+
 function defineRoute ({
     name,
     parent,
@@ -33,11 +38,11 @@ function defineRoute ({
     create: createConfig,
     view: viewConfig,
     edit: editConfig, }) {
-        let baseName = parent ? `${parent}.${name}` : name;
+        let baseName = parent ? parent + capFirst(name) : name;
         let list = baseName;
-        let create = `${baseName}.create`;
-        let view = `${baseName}.view`;
-        let edit = `${view}.edit`;
+        let create = `${baseName}Create`;
+        let view = `${baseName}View`;
+        let edit = `${view}Edit`;
         let routeDefinition = {
             list: listConfig ? list : null,
             create: createConfig ? create : null,
@@ -177,12 +182,12 @@ function createRouteFactory({
         views = {},
     }) {
         // Inject the resource into the controller to be able to catch it in its closure.
-        if (! resolve.resource ) {
-            resolve.resource = function resolveRecords($stateParams, Restangular) {
+        if (! resolve.record ) {
+            resolve.record = function resolveRecords($stateParams, Restangular) {
                 // TODO need a way to add as parameter parent routes PKs?
                 return this.getResource(Restangular, $stateParams).all(resourceName);
             }
-            resolve.resource.$inject = ['$stateParams', 'Restangular'];
+            resolve.record.$inject = ['$stateParams', 'Restangular'];
         }
 
          function getResource(Restangular, $stateParams) {
