@@ -1,0 +1,20 @@
+<div>
+    <a ng-href="{{ editCtrl.$state.href( editCtrl.$state.$current.data.routeDefinition.view, { id: editCtrl.record.id } ) }} ">
+        <button>Back</button>
+    </a>
+</div>
+<div>
+    <form name="{{ editCtrl.$state.$current.data.routeDefinition.edit }}"
+          mt-form
+          ng-submit="mtFormCtrl.submit( editCtrl, 'save' )"
+          >
+          <form-controls>
+            <input  ng-repeat="(_name, field) in editCtrl.record.plain()"
+                    ng-model="editCtrl.record[_name]"
+                    name="{{ _name }}"
+                    label="{{ _name }}"
+                    mt-form-group>
+            <mt-button></mt-button>
+          </form-controls>
+    </form>
+</div>

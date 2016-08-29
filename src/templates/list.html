@@ -1,0 +1,14 @@
+<div>{{ listCtrl.$state.current.title }} List</div>
+<table class="table table-striped">
+    <tr>
+        <th ng-repeat="v in listCtrl.recordHeaders">{{ v }}</th>
+    </tr>
+    <tr ng-repeat="record in listCtrl.records">
+        <td>
+            <a ui-state="listCtrl.$state.$current.data.routeDefinition.view"
+               ui-state-params="{ {{ listCtrl.$state.$current.data.routeDefinition.stateParamKey }}: record.id }">
+                {{ record.name }}
+            </a>
+        </td>
+    </tr>
+</table>

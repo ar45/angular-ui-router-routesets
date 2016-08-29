@@ -1,0 +1,17 @@
+<div>
+    <nav>
+        <ul>
+            <li><a ui-sref="billing.products">Products</a></li>
+            <li><a href="">Packages</a></li>
+        </ul>
+    </nav>
+</div>
+<section class="frame col-md-12">
+    <section ui-view="list" class="list-view">
+        <div>List view</div>
+    </section>
+    <section ui-view="detail" class="detail-view">
+    </section>
+    <section ui-view="edit" class="edit-view">
+    </section>
+</section>

@@ -1,0 +1,22 @@
+<div>
+    <div>
+        <h2 class="text-center">{{ title }}</h2>
+        <a  ui-state="viewCtrl.$state.$current.data.routeDefinition.edit"
+            ui-state-params="{ {{ viewCtrl.$state.$current.data.routeDefinition.stateParamKey }}: viewCtrl.record.id }">
+            <button class="float-right">Edit</button>
+        </a>
+    </div>
+
+    <table class="table table-stripped">
+        <tr>
+           <th ng-repeat="(_name, field) in viewCtrl.record.plain()">
+                {{ _name }}
+           </th>
+        </tr>
+        <tr>
+            <td ng-repeat="field in viewCtrl.record.plain()">
+                {{ field }}
+            </td>
+        </tr>
+    </table>
+</div>

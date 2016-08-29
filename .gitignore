@@ -1,0 +1,10 @@
+# Exclude Directories.
+node_modules
+public
+dist
+
+.vscode
+.idea
+
+npm-debug.log
+
