@@ -32,6 +32,7 @@ function capFirst (s) {
 function defineRoute ({
     name,
     parent,
+    displayName,
     stateParamKey,
     stateParamPattern,
     list: listConfig,
@@ -50,6 +51,7 @@ function defineRoute ({
             edit: editConfig ? edit : null,
             stateParamPattern: stateParamPatterns[stateParamPattern] || stateParamPattern,
             stateParamKey,
+            displayName,
         };
 
         let detailParentRoute = listConfig ? list : parent;
@@ -70,6 +72,7 @@ class RouteSet {
         templateRequireContext = require.context('./templates/'),
         resource = name,
         resourceName = pluralize.plural(resource),
+        displayName = pluralize.singular(resourceName.split('/').pop()),
         stateParamKey = `${ pluralize.singular(resourceName.split('/').pop()) }Id`,
         stateParamPattern = 'int',
         parent = null,
@@ -82,27 +85,63 @@ class RouteSet {
         assert(name, 'You did not provide a name for this route.');
         assert(baseUrl, 'You did not set a url for this route');
         let { detailParentRoute, editParentRoute, routeDefinition } =
-             defineRoute({ name, parent, stateParamKey, stateParamPattern, list, create, view, edit });
+             defineRoute({ name, parent, displayName, stateParamKey, stateParamPattern, list, create, view, edit });
 
         if (list !== null)
-            this.list = listRouteFactory(
-                { name, routeDefinition, baseUrl, parent, templateRequireContext, resourceName, injectAt },
-                list);
+            this.list = listRouteFactory({
+                                name,
+                                routeDefinition,
+                                baseUrl,
+                                parent,
+                                templateRequireContext,
+                                resourceName,
+                                viewName: list.viewName || 'list',
+                                injectAt,
+                            },
+                            list
+                        );
 
         if (create !== null)
-            this.create = createRouteFactory(
-                { name, routeDefinition, baseUrl, parent: detailParentRoute, templateRequireContext, resourceName, injectAt },
-                create);
+            this.create = createRouteFactory({
+                                    name,
+                                    routeDefinition,
+                                    baseUrl,
+                                    parent: detailParentRoute,
+                                    templateRequireContext,
+                                    resourceName,
+                                    viewName: create.viewName || 'create',
+                                    injectAt
+                                },
+                                create
+                            );
 
         if (view !== null)
-            this.view = viewRouteFactory(
-                { name, routeDefinition, baseUrl, parent: detailParentRoute, templateRequireContext, resourceName, injectAt },
-                view);
+            this.view = viewRouteFactory({
+                                    name,
+                                    routeDefinition,
+                                    baseUrl,
+                                    parent: detailParentRoute,
+                                    templateRequireContext,
+                                    resourceName,
+                                    viewName: view.viewName || 'view',
+                                    injectAt
+                                },
+                                view
+                            );
 
         if (edit !== null)
-            this.edit = editRouteFactory(
-                { name, routeDefinition, baseUrl, parent: editParentRoute, templateRequireContext, resourceName, injectAt },
-                edit);
+            this.edit = editRouteFactory({
+                                    name,
+                                    routeDefinition,
+                                    baseUrl,
+                                    parent: editParentRoute,
+                                    templateRequireContext,
+                                    resourceName,
+                                    viewName: edit.viewName || 'edit',
+                                    injectAt
+                                },
+                                edit
+                            );
     }
 }
 
@@ -114,6 +153,7 @@ function listRouteFactory({
         parent,
         templateRequireContext,
         resourceName,
+        viewName,
         injectAt,
     },
     {
@@ -126,11 +166,18 @@ function listRouteFactory({
         views = {},
     }) {
         if (! resolve.records ) {
-            resolve.records = function resolveRecords($stateParams, Restangular, $state) {
+            resolve.records = function resolveRecords($stateParams, Restangular, $state, $location) {
                 // TODO need a way to add as parameter parent this.routes PKs?
-                return this.getResource(Restangular, $stateParams).all(resourceName).getList();
+                let route = this.getResource(Restangular, $stateParams).all(resourceName);
+                if (this.params.page) {
+                    return route.customGET(null, { page: $stateParams.page, page_size: $stateParams.page_size });
+
+                } else {
+                    return route.getList();
+
+                }
             }
-            resolve.records.$inject = ['$stateParams', 'Restangular', '$state'];
+            resolve.records.$inject = ['$stateParams', 'Restangular', '$state', '$location'];
         }
 
         function getResource(Restangular, $stateParams) {
@@ -141,7 +188,7 @@ function listRouteFactory({
         }
 
 
-        views[`list@${injectAt}`] =  {
+        views[`${viewName}@${injectAt}`] =  {
             controller,
             controllerAs,
             template,
@@ -169,6 +216,7 @@ function createRouteFactory({
         parent,
         templateRequireContext,
         resourceName,
+        viewName,
         injectAt,
     },
     {
@@ -197,7 +245,7 @@ function createRouteFactory({
             return Restangular;
         }
 
-        views[`detail@${injectAt}`] =  {
+        views[`${viewName}@${injectAt}`] =  {
             controller,
             controllerAs,
             template,
@@ -224,6 +272,7 @@ function viewRouteFactory({
         parent,
         templateRequireContext,
         resourceName,
+        viewName,
         injectAt,
     },
     {
@@ -251,7 +300,7 @@ function viewRouteFactory({
             return parentResource.one(resourceName, $stateParams[routeDefinition.stateParamKey]);
         }
 
-        views[`detail@${injectAt}`] = {
+        views[`${viewName}@${injectAt}`] = {
             controller,
             controllerAs,
             template,
@@ -278,6 +327,7 @@ function editRouteFactory({
         parent,
         templateRequireContext,
         resourceName,
+        viewName,
         injectAt,
     },
     {
@@ -294,7 +344,7 @@ function editRouteFactory({
         // TODO if there is no view route we need to resolve directly.
         resolve.record =  ['record', (record) => record ];
 
-        views[`detail@${injectAt}`] = {
+        views[`${viewName}@${injectAt}`] = {
             controller,
             controllerAs,
             template,

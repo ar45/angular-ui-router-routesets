@@ -1,13 +1,46 @@
 
 class GenericListController {
-    constructor($stateParams, $state, records) {
+    constructor($scope, $location, $stateParams, $state, records) {
+        this.$location = $location;
         this.$stateParams = $stateParams;
         this.$state = $state;
         this.records = records;
+        this.itemsPerPage = this.getItemsPerPage();
+
+        $scope.$watch( () => this.itemsPerPage, (newValue, oldValue) => {
+            if (oldValue != newValue) {
+                this.$location.search('page_size', newValue);
+            }
+        });
+    }
+
+    getItemsPerPage() {
+        return +(this.$location.search().page_size) || 5;
+    }
+
+    hasPreviousPage() {
+        return this.records.previous != null;
+    }
+
+    hasNextPage() {
+        return this.records.next != null;
+    }
+
+    nextPage() {
+        let page = (+this.$stateParams.page || 1) + 1;
+        return `${this.$state.$current.name}({ page: ${page} })`;
+    }
+
+    previousPage() {
+        let page = this.$stateParams.page - 1;
+        return `${this.$state.$current.name}({ page: ${page} })`;
     }
 }
 
-GenericListController.$inject = ['$stateParams', '$state', 'records'];
+GenericListController.prototype.itemsPerPageOptions = [5, 10, 25, 50, 75, 100];
+
+GenericListController.$inject = ['$scope', '$location', '$stateParams', '$state', 'records'];
+
 
 
 class GenericDetailController {

@@ -9,7 +9,17 @@ const restangular = 'restangular';
 import uiRouterRouteSets from './routesets-provider.js';
 import RouteSet from './routesets.js';
 
-export { RouteSet };
+import {
+    GenericListController,
+    GenericDetailController,
+} from './controllers.js';
+
+
+export {
+    GenericListController,
+    GenericDetailController,
+    RouteSet,
+};
 
 export default angular.module('angular-ui-router-routesets', [
         uiRouter, restangular,
