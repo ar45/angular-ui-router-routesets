@@ -13,7 +13,7 @@ import { RouteSet } from 'angular-ui-router-routesets';
 import { GenericListController, GenericDetailController } from 'angular-ui-router-routesets';
 
 
-class UsersController extends  GenericDetailController {
+class UsersController extends  GenericListController {
 
     filter(term) {
         queryParams = services.getSearchQueryParams(term);
