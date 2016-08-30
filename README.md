@@ -2,44 +2,106 @@
 
 Provides a easy common way to get a set of views in a restful manner.
 
-## Create a route
+## Examples
 
-Custom controllers inherit from our generic controllers.
 
-Example route.
+### routes.js
 
-```js
-import RouteSet from 'angular-ui-router-routesets/routesets'
+```javascript
+import { RouteSet } from 'angular-ui-router-routesets';
 
-RouteSet({
-    parent,   // string
-    name,     // string
-    url,      // string
-    resource, // string or function
-    controller, // Use a one off controller for all routes.
-    list: {   // custom options for list
-        controller,
-        data,
-        resolve,
-    },
-    create: { // custom options for create
-        controller,
-        data,
-        resolve,
-    },
-    view: {  // custom options for view
-        controller,
-        data,
-        resolve,
-    },
-    edit: {  // custom options for edit
-        controller,
-        data,
-        resolve,
+import { GenericListController, GenericDetailController } from 'angular-ui-router-routesets';
+
+
+class UsersController extends  GenericDetailController {
+
+    filter(term) {
+        queryParams = services.getSearchQueryParams(term);
+        return this.records.getList(queryParams).then( records => {
+            this.records = records;
+        });
     }
-})
+}
+
+const promosRoutes = new RouteSet({
+    name: 'promotions',
+    url: '/promos',
+    // Mask out all routes, we only have a list route
+    create: null,
+    view: null,
+    edit: null,
+});
+
+
+function routes(uiRouterRouteSetsProvider, $stateProvider) {
+    $stateProvider.state(promosRoutes.list);
+
+    $stateProvider.state('base', {
+        // This is where we declare sub ui-views for `list`, `detail`, and `edit`.
+        template: require('./templates/overview.html'),
+        abstract: true,
+        // Allow for our base template to access $state
+        controller: ['$state', function ($state) {
+            this.$state = $state;
+        }],
+        controllerAs: 'routeSetCtrl',
+    });
+
+    uiRouterRouteSetsProvider.states({
+        parent: 'base',
+        // state basename - this will generate 4 states with the following names
+        // `baseUsers`, `baseUsersEdit`, `baseUsersView`, and `baseUsersCreate`.
+        name: 'users',
+        url: '/users',
+        // REST Api resource where to get users.
+        // `/users`, `/users/<userId>`
+        resourceName: '/users',
+        // Inject into the ui-view addressed at `base@list`
+        injectAt: 'base',
+        // Use a custom controller
+        list: {
+            controller: UsersController,
+            template: require('./users.list.html'),
+        },
+    })
+
+    .states({
+        parent: 'base',
+        name: 'accounts',
+        url: '/accounts',
+        stateParamPattern: 'int',
+        // Absolute url
+        resourceName: '/accounts',
+        //templateRequireContext: require.context('./templates'),
+    })
+
+    .states({
+        // Route names get transformed into fully qualified names as camelCase.
+        parent: 'baseAccountsView',
+        name: 'orders',
+        url: 'orders',
+        // orderId state param is a uuid.
+        stateParamPattern: 'uuid',
+        // Relative to accounts. This results in API endpoints
+        // `/accounts/<accountId>/orders`
+        // `/accounts/<accountId>/orders/<orderId>`
+        resourceName: 'orders',
+    })
+}
+
+routes.$inject = ['uiRouterRouteSetsProvider', '$stateProvider'];
+
+export default routes;
 ```
 
-If `url` is a function it will be called (with the route as its context) to get the rousource.
 
-We need the restful resource to be called for a get
+### index.js
+
+```javascript
+import angular from 'angular';
+import routes from './routes.js';
+
+export default angular.module('my.module')
+    .config(routes)
+    .name;
+```
