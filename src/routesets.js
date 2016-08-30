@@ -2,6 +2,8 @@ import _ from 'lodash';
 import assert from 'assert';
 import pluralize from 'pluralize';
 
+import { capFirst } from './utils.js';
+
 import {
     GenericListController,
     GenericDetailController,
@@ -21,11 +23,6 @@ function tryLoadTemplate(requireContext, template) {
     } catch (e) {
 
     }
-}
-
-
-function capFirst (s) {
-    return s && s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 
@@ -123,7 +120,7 @@ class RouteSet {
                                     parent: detailParentRoute,
                                     templateRequireContext,
                                     resourceName,
-                                    viewName: view.viewName || 'view',
+                                    viewName: view.viewName || 'detail',
                                     injectAt
                                 },
                                 view
@@ -205,6 +202,7 @@ function listRouteFactory({
             data,
             resolve,
             getResource,
+            defaultDisplayName: capFirst(pluralize.plural(name)),
         };
 }
 
@@ -261,6 +259,7 @@ function createRouteFactory({
             data,
             resolve,
             getResource,
+            defaultDisplayName: `Create ${capFirst(pluralize.singular(name))}`,
         };
 }
 
@@ -316,6 +315,7 @@ function viewRouteFactory({
             data,
             resolve,
             getResource,
+            defaultDisplayName: capFirst(pluralize.singular(name)),
         };
 }
 
@@ -359,6 +359,7 @@ function editRouteFactory({
             views,
             data,
             resolve,
+            defaultDisplayName: `Edit ${capFirst(pluralize.singular(name))}`,
         };
 }
 
